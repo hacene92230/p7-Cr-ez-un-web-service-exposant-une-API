@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>suppression d'un produit</title>
+</head>
+
+<body>
+
+  <form id="delete-form">
+    <label for="product-id">Sélectionnez un produit à supprimer :</label>
+    <select id="product-id" name="product-id">
+      <!-- Options pour la liste déroulante -->
+    </select>
+    <br>
+    <button type="submit">Supprimer</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    const form = document.getElementById("delete-form");
+    const select = document.getElementById("product-id");
+    const result = document.getElementById("result");
+    const token = sessionStorage.getItem('token');
+    fetch("http://localhost/p7/public/api/product", {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        let optionsHtml = "";
+  
+        for (const product of data) {
+          optionsHtml += `
+          <option value="${product.id}">${product.name}</option>
+        `;
+        }
+  
+        select.innerHTML = optionsHtml;
+      })
+      .catch((error) => {
+        result.innerHTML = "Erreur: " + error;
+      });
+  
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+  
+      const productId = select.value;
+  
+      fetch("http://localhost/p7/public/api/product/" + productId, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then((response) => {
+if (response.ok) {
+return response.json();
+} else {
+throw new Error("Erreur lors de la suppression du produit");
+}
+})
+.then((data) => {
+if (data.message) {
+result.innerHTML = "Suppression réussie : " + data.message;
+} else if (data.error) {
+result.innerHTML = "Erreur: " + data.error;
+}
+})
+.catch((error) => {
+result.innerHTML = error;
+});
+});      
+      </script>

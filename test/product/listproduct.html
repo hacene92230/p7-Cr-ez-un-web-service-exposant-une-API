@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des produits</title>
+</head>
+
+<body>
+  <div id="product"></div>
+    <script>
+    const productDiv = document.getElementById("product");
+    const token = sessionStorage.getItem('token');
+        fetch(`http://localhost/p7/public/api/product`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        let productHtml = "";
+  
+        for (const product of data.items) {
+          productHtml += `
+            <div>
+              <p>
+                <a href="#" data-id="${product.id}">${product.name}</a>
+              </p>
+              <div id="product-${product.id}" class="product-details" style="display: none;"></div>
+            </div>
+          `;
+        }
+  
+        productDiv.innerHTML = productHtml;
+  
+        const productLinks = productDiv.querySelectorAll("a");
+        for (const link of productLinks) {
+          link.addEventListener("click", function(event) {
+            event.preventDefault();
+            const productId = event.target.dataset.id;
+            const productDetailsDiv = document.getElementById(`product-${productId}`);
+  
+            for (const otherLink of productLinks) {
+              if (otherLink !== link) {
+                const otherProductId = otherLink.dataset.id;
+                const otherProductDetailsDiv = document.getElementById(`product-${otherProductId}`);
+                otherProductDetailsDiv.style.display = "none";
+              }
+            }
+  
+            fetch(`http://localhost/p7/public/api/product/${productId}/`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            })
+              .then((response) => response.json())
+              .then((productDetails) => {
+                productDetailsDiv.innerHTML = `
+                  <p>nom: ${productDetails.name}</p>
+                  <p>Modèle: ${productDetails.model}</p>
+                  <p>Prix: ${productDetails.price}</p>
+                                    <p>Description: ${productDetails.description}</p>
+                `;
+                productDetailsDiv.style.display = "block";
+              })
+              .catch((error) => {
+                productDetailsDiv.innerHTML = "Error: " + error;
+                productDetailsDiv.style.display = "block";
+              });
+          });
+        }
+      })
+      .catch((error) => {
+        if (token === null) {
+          productDiv.innerHTML = "Token non valide. Veuillez vérifier les informations de connexion.";
+          return;
+        }
+        productDiv.innerHTML = "Error: " + error;
+      });
+    </script>
+  </body>
+</html>

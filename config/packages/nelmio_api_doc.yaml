@@ -1,0 +1,24 @@
+nelmio_api_doc:
+    models: { use_jms: false }
+    documentation:
+        info:
+            title: Bilmo API Doc
+            description: This is an awesome app!
+            version: 1.0.0
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    name: Bearer
+                    bearerFormat: JWT
+                # api_key:
+                #     type: apiKey
+                #     name: user-api-key
+                #     in: header
+        security:
+            - Bearer: []
+            - api_key: []
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

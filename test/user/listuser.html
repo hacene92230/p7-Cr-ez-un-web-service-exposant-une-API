@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des utilisateurs</title>
+</head>
+
+<body>
+  <div id="users"></div>
+
+  <script>
+    const usersDiv = document.getElementById("users");
+    const token = sessionStorage.getItem('token');
+    
+    fetch("http://localhost/p7/public/api/user/?page=1", {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.hasOwnProperty('items')) {
+          throw new Error('Le serveur n\'a pas retourné de données utilisateur valides');
+        }
+    
+        let usersHtml = "";
+    
+        for (const user of data.items) {
+          usersHtml += `
+            <div>
+              <p>
+                <a href="#" data-id="${user.id}">${user.nickname}</a>
+              </p>
+              <div id="user-${user.id}" class="user-details" style="display: none;"></div>
+            </div>
+          `;
+        }
+    
+        usersDiv.innerHTML = usersHtml;
+    
+        const userLinks = usersDiv.querySelectorAll("a");
+        for (const link of userLinks) {
+          link.addEventListener("click", function(event) {
+            event.preventDefault();
+            const userId = event.target.dataset.id;
+            const userDetailsDiv = document.getElementById(`user-${userId}`);
+    
+            for (const otherLink of userLinks) {
+              if (otherLink !== link) {
+                const otherUserId = otherLink.dataset.id;
+                const otherUserDetailsDiv = document.getElementById(`user-${otherUserId}`);
+                otherUserDetailsDiv.style.display = "none";
+              }
+            }
+    
+            fetch(`http://localhost/p7/public/api/user/${userId}/`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            })
+              .then((response) => response.json())
+              .then((userDetails) => {
+                userDetailsDiv.innerHTML = `
+                  <p>Email: ${userDetails.email}</p>
+                  <p>Pseudo: ${userDetails.nickname}</p>
+                  <p>Date de création: ${userDetails.createdAt}</p>
+                `;
+                userDetailsDiv.style.display = "block";
+              })
+              .catch((error) => {
+                userDetailsDiv.innerHTML = "Error: " + error;
+                userDetailsDiv.style.display = "block";
+              });
+          });
+        }
+      })
+      .catch((error) => {
+        if (token === null) {
+          usersDiv.innerHTML = "Token non valide. Veuillez vérifier les informations de connexion.";
+          return;
+        }
+        usersDiv.innerHTML = "Error: " + error;
+      });
+    </script>
+  
+</body>
+</html>

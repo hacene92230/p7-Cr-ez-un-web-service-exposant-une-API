@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Modifier un produit</title>
+</head>
+
+<body>
+  <select id="productId">
+    <option value="">Sélectionner un produit</option>
+  </select>
+  <br><br>
+  <form id="form">
+    <label>Nom :</label>
+    <input type="text" id="name">
+    <br><br>
+    <label>Prix :</label>
+    <input type="text" id="price">
+    <br><br>
+    <label>Modèle :</label>
+    <input type="text" id="model">
+    <br><br>
+    <label>Description :</label>
+    <input type="text" id="description">
+    <br><br>
+    <button type="submit">Envoyer</button>
+  </form>
+
+  <div id="message"></div>
+  <script>
+    const select = document.getElementById("productId");
+    const form = document.getElementById("form");
+    const message = document.getElementById("message");
+    const token = sessionStorage.getItem("token");
+    let products;
+  
+    fetch("http://localhost/p7/public/api/product/", {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Unexpected response code: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        products = data;
+        if (!Array.isArray(data)) {
+          message.innerHTML = "Error: la réponse du serveur n'est pas un tableau";
+        } else {
+          data.forEach(product => {
+            const option = document.createElement("option");
+            option.value = product.id;
+            option.innerHTML = product.name;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => message.innerHTML = `Error: ${error}`);
+  
+    let selectedProduct;
+    select.addEventListener("change", () => {
+      selectedProduct = products.find(product => product.id === Number(select.value));
+  
+      if (selectedProduct) {
+        document.getElementById("name").value = selectedProduct.name;
+        document.getElementById("price").value = selectedProduct.price;
+        document.getElementById("model").value = selectedProduct.model;
+        document.getElementById("description").value = selectedProduct.description;
+      }
+    });
+  
+    form.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const productId = selectedProduct.id;
+  if (!productId) {
+    return message.innerHTML = "Error: Veuillez sélectionner un produit à modifier";
+  }
+
+  const data = {
+    name: document.getElementById("name").value,
+    price: document.getElementById("price").value,
+    model: document.getElementById("model").value,
+    description: document.getElementById("description").value
+  };
+
+  fetch(`http://localhost/p7/public/api/product/${productId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Unexpected response code: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.message) {
+        message.innerHTML = `message: ${data.message}`;
+      } else {
+        message.innerHTML = "Success: Le produit a été mis à jour avec succès";
+      }
+    })
+    .catch(error => message.innerHTML = `Error: ${error}`);
+});
+
+  </script>  
+  </body>
+
+</html>

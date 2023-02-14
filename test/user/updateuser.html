@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Modifier un utilisateur</title>
+</head>
+
+<body>
+  <select id="userId">
+    <option value="">Sélectionner un utilisateur</option>
+  </select>
+  <br><br>
+  <form id="form">
+    <label>Pseudo :</label>
+    <input type="text" id="nickname">
+    <br><br>
+    <label>Email :</label>
+    <input type="text" id="email">
+    <br><br>
+    <button type="submit">Envoyer</button>
+  </form>
+
+  <div id="message"></div>
+  <script>
+    const select = document.getElementById("userId");
+    const form = document.getElementById("form");
+    const message = document.getElementById("message");
+    const token = sessionStorage.getItem("token");
+    let users;
+  
+    fetch("http://localhost/p7/public/api/user/", {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Unexpected response code: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        users = data;
+        if (!Array.isArray(data)) {
+          message.innerHTML = "Error: la réponse du serveur n'est pas un tableau";
+        } else {
+          data.forEach(user => {
+            const option = document.createElement("option");
+            option.value = user.id;
+            option.innerHTML = user.nickname;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => message.innerHTML = `Error: ${error}`);
+  
+    let selectedUser;
+    select.addEventListener("change", () => {
+      selectedUser = users.find(user => user.id === Number(select.value));
+  
+      if (selectedUser) {
+        document.getElementById("nickname").value = selectedUser.nickname;
+        document.getElementById("email").value = selectedUser.email;
+      }
+    });
+  
+    form.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const userId = selectedUser.id;
+  if (!userId) {
+    return message.innerHTML = "Error: Veuillez sélectionner un produit à modifier";
+  }
+
+  const data = {
+    nickname: document.getElementById("nickname").value,
+    email: document.getElementById("email").value
+  };
+
+  fetch(`http://localhost/p7/public/api/user/${userId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Unexpected response code: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.message) {
+        message.innerHTML = `message: ${data.message}`;
+      } else {
+        message.innerHTML = "Success: Cet utilisateur à été mis à jour avec succès";
+      }
+    })
+    .catch(error => message.innerHTML = `Error: ${error}`);
+});
+
+  </script>  
+  </body>
+
+</html>
