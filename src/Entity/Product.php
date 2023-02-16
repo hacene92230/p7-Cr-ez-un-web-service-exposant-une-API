@@ -19,6 +19,7 @@ class Product
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le nom du produit est obligatoire")]
     #[Assert\Length(min: 3, max: 55, minMessage: "Le nom doit faire au moins {{ limit }} caractères", maxMessage: "Le nom ne peut pas faire plus de {{ limit }} caractères")]
+    #[Groups(["getProducts"])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]

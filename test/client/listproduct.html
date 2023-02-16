@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des produits</title>
+</head>
+
+<body>
+  <div id="client"></div>
+    <script>
+    const clientDiv = document.getElementById("client");
+    const token = sessionStorage.getItem('token');
+        fetch(`http://localhost/p7/public/api/client`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        let clientHtml = "";
+  
+        for (const client of data.items) {
+          clientHtml += `
+            <div>
+              <p>
+                <a href="#" data-id="${client.id}">${client.name}</a>
+              </p>
+              <div id="client-${client.id}" class="client-details" style="display: none;"></div>
+            </div>
+          `;
+        }
+  
+        clientDiv.innerHTML = clientHtml;
+  
+        const clientLinks = clientDiv.querySelectorAll("a");
+        for (const link of clientLinks) {
+          link.addEventListener("click", function(event) {
+            event.preventDefault();
+            const clientId = event.target.dataset.id;
+            const clientDetailsDiv = document.getElementById(`client-${clientId}`);
+  
+            for (const otherLink of clientLinks) {
+              if (otherLink !== link) {
+                const otherClientId = otherLink.dataset.id;
+                const otherClientDetailsDiv = document.getElementById(`client-${otherClientId}`);
+                otherClientDetailsDiv.style.display = "none";
+              }
+            }
+  
+            fetch(`http://localhost/p7/public/api/client/${clientId}/`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            })
+              .then((response) => response.json())
+              .then((clientDetails) => {
+                clientDetailsDiv.innerHTML = `
+                  <p>nom: ${clientDetails.name}</p>
+                  <p>Modèle: ${clientDetails.model}</p>
+                  <p>Prix: ${clientDetails.price}</p>
+                                    <p>Description: ${clientDetails.description}</p>
+                `;
+                clientDetailsDiv.style.display = "block";
+              })
+              .catch((error) => {
+                clientDetailsDiv.innerHTML = "Error: " + error;
+                clientDetailsDiv.style.display = "block";
+              });
+          });
+        }
+      })
+      .catch((error) => {
+        if (token === null) {
+          clientDiv.innerHTML = "Token non valide. Veuillez vérifier les informations de connexion.";
+          return;
+        }
+        clientDiv.innerHTML = "Error: " + error;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Publier un produit</title>
+</head>
+
+<body>
+<form id="form">
+  <label>Nom :</label>
+  <input type="text" id="name">
+  <br><br>
+  <label>Prix :</label>
+  <input type="text" id="price">
+  <br><br>
+  <label>Modèle :</label>
+  <input type="text" id="model">
+  <br><br>
+  <label>Description :</label>
+  <input type="text" id="description">
+  <br><br>
+  <button type="submit">Envoyer</button>
+</form>
+<ul id="errorMessage" style="display:none;"></ul>
+<div id="message"></div>
+
+<script>
+const form = document.getElementById("form");
+const message = document.getElementById("message");
+const errorMessage = document.getElementById("errorMessage");
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const model = document.getElementById("model").value;
+  const description = document.getElementById("description").value;
+
+  let errorList = [];
+
+  if (!name) {
+    errorList.push("Nom");
+  }
+  if (!price) {
+    errorList.push("Prix");
+  }
+  if (!model) {
+    errorList.push("Modèle");
+  }
+  if (!description) {
+    errorList.push("Description");
+  }
+
+  if (errorList.length > 0) {
+    errorMessage.style.display = "block";
+    errorList.forEach((error) => {
+      const li = document.createElement("li");
+      li.textContent = error + " est un champ obligatoire";
+      errorMessage.appendChild(li);
+    });
+    return;
+  }
+  
+  const data = { name, price, model, description };
+  const token = sessionStorage.getItem('token');
+  fetch("http://localhost/p7/public/api/product", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      message.innerHTML = "Success: " + JSON.stringify(data);
+    })
+    .catch((error) => {
+       message.innerHTML = "Error: " + error;
+    });
+});
+</script>
+</body>
+</html>

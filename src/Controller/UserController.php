@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use DateTimeImmutable;
 use App\Repository\UserRepository;
+use App\Repository\ClientsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
@@ -41,11 +42,12 @@ class UserController extends AbstractController
     /**
      * @Route("/register", name="user_register", methods={"POST"})
      */
-    public function register(SerializerInterface $serializer, ManagerRegistry $doctrine, Request $request, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
+    public function register(ClientsRepository $clientRepository, SerializerInterface $serializer, ManagerRegistry $doctrine, Request $request, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
     {
         $em = $doctrine->getManager();
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
         $user->setRoles(['ROLE_USER']);
+        $user->setClients($clientRepository->findOneBy(['id' => 2]));
         $user->setCreatedAt(new DateTimeImmutable());
         // Vérification si l'email existe déjà
         $existingUser = $em->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
@@ -86,7 +88,7 @@ class UserController extends AbstractController
             'page' => $pagination->getCurrentPageNumber(),
             'limit' => $pagination->getItemNumberPerPage(),
         ];
-        $json = $serializer->serialize($data, 'json');
+        $json = $serializer->serialize($data, 'json', ['groups' => "getUsers"]);
         return new JsonResponse($json, 200, [], true);
     }
 
@@ -95,7 +97,7 @@ class UserController extends AbstractController
     {
         $user = $userRepository->find($id);
         if ($user) {
-            $jsonUser = $serializer->serialize($user, 'json');
+            $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getUsers']);
             return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);

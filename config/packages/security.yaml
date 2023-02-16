@@ -28,6 +28,3 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-    access_control:
-        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
-        - { path: ^/api/,       roles: IS_AUTHENTICATED_FULLY }
