@@ -7,10 +7,10 @@
 </head>
 
 <body>
+<p>Choisir l'utilisateur que vous souhaitez modifier</p>
   <select id="userId">
     <option value="">Sélectionner un utilisateur</option>
   </select>
-  <br><br>
   <form id="form">
     <label>Pseudo :</label>
     <input type="text" id="nickname">
@@ -41,11 +41,11 @@
         return response.json();
       })
       .then(data => {
-        users = data;
-        if (!Array.isArray(data)) {
+        users = data.items;
+        if (!Array.isArray(users)) {
           message.innerHTML = "Error: la réponse du serveur n'est pas un tableau";
         } else {
-          data.forEach(user => {
+          users.forEach(user => {
             const option = document.createElement("option");
             option.value = user.id;
             option.innerHTML = user.nickname;
@@ -70,15 +70,15 @@
 
   const userId = selectedUser.id;
   if (!userId) {
-    return message.innerHTML = "Error: Veuillez sélectionner un produit à modifier";
+    return message.innerHTML = "Error: Veuillez sélectionner un utilisateur à modifier";
   }
 
   const data = {
     nickname: document.getElementById("nickname").value,
     email: document.getElementById("email").value
   };
-
   fetch(`http://localhost/p7/public/api/user/${userId}`, {
+
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -96,7 +96,7 @@
       if (data.message) {
         message.innerHTML = `message: ${data.message}`;
       } else {
-        message.innerHTML = "Success: Cet utilisateur à été mis à jour avec succès";
+        message.innerHTML = "Success: Le produit a été mis à jour avec succès";
       }
     })
     .catch(error => message.innerHTML = `Error: ${error}`);
