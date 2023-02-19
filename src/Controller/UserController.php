@@ -47,7 +47,7 @@ class UserController extends AbstractController
         $em = $doctrine->getManager();
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
         $user->setRoles(['ROLE_USER']);
-        $user->setClients($clientRepository->findOneBy(['id' => 2]));
+        $user->setClients($clientRepository->findOneBy(['id' => 4]));
         $user->setCreatedAt(new DateTimeImmutable());
         // Vérification si l'email existe déjà
         $existingUser = $em->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);

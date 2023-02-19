@@ -3,14 +3,14 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>suppression d'un produit</title>
+  <title>suppression d'un client</title>
 </head>
 
 <body>
 
   <form id="delete-form">
-    <label for="product-id">Sélectionnez un produit à supprimer :</label>
-    <select id="product-id" name="product-id">
+    <label for="client-id">Sélectionnez un client à supprimer :</label>
+    <select id="client-id" name="client-id">
       <!-- Options pour la liste déroulante -->
     </select>
     <br>
@@ -19,10 +19,10 @@
   <div id="result"></div>
   <script>
     const form = document.getElementById("delete-form");
-    const select = document.getElementById("product-id");
+    const select = document.getElementById("client-id");
     const result = document.getElementById("result");
     const token = sessionStorage.getItem('token');
-    fetch("http://localhost/p7/public/api/product", {
+    fetch("http://localhost/p7/public/api/client", {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -31,9 +31,9 @@
       .then((data) => {
         let optionsHtml = "";
   
-        for (const product of data) {
+        for (const client of data.items) {
           optionsHtml += `
-          <option value="${product.id}">${product.name}</option>
+          <option value="${client.id}">${client.name}</option>
         `;
         }
   
@@ -46,9 +46,9 @@
     form.addEventListener("submit", (event) => {
       event.preventDefault();
   
-      const productId = select.value;
+      const clientId = select.value;
   
-      fetch("http://localhost/p7/public/api/product/" + productId, {
+      fetch("http://localhost/p7/public/api/client/" + clientId, {
         method: "DELETE",
         headers: {
           'Authorization': `Bearer ${token}`
@@ -58,7 +58,7 @@
 if (response.ok) {
 return response.json();
 } else {
-throw new Error("Erreur lors de la suppression du produit");
+throw new Error("Erreur lors de la suppression du client");
 }
 })
 .then((data) => {

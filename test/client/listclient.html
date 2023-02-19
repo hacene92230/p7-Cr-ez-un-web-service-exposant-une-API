@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Liste des produits</title>
+  <title>Liste des clients</title>
 </head>
 
 <body>
@@ -57,9 +57,9 @@
               .then((clientDetails) => {
                 clientDetailsDiv.innerHTML = `
                   <p>nom: ${clientDetails.name}</p>
-                  <p>Modèle: ${clientDetails.model}</p>
-                  <p>Prix: ${clientDetails.price}</p>
-                                    <p>Description: ${clientDetails.description}</p>
+                  <p>Adresse: ${clientDetails.adresse}</p>
+                  <p>Code postal: ${clientDetails.cp}</p>
+                  <p>Ville: ${clientDetails.ville}</p>
                 `;
                 clientDetailsDiv.style.display = "block";
               })

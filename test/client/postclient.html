@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Publier un produit</title>
+  <title>Ajouter un client</title>
 </head>
 
 <body>
@@ -11,14 +11,14 @@
   <label>Nom :</label>
   <input type="text" id="name">
   <br><br>
-  <label>Prix :</label>
-  <input type="text" id="price">
+  <label>Adresse :</label>
+  <input type="text" id="adresse">
   <br><br>
-  <label>Modèle :</label>
-  <input type="text" id="model">
+  <label>Code postal :</label>
+  <input type="text" id="cp">
   <br><br>
-  <label>Description :</label>
-  <input type="text" id="description">
+  <label>Ville :</label>
+  <input type="text" id="ville">
   <br><br>
   <button type="submit">Envoyer</button>
 </form>
@@ -33,23 +33,23 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const name = document.getElementById("name").value;
-  const price = document.getElementById("price").value;
-  const model = document.getElementById("model").value;
-  const description = document.getElementById("description").value;
+  const adresse = document.getElementById("adresse").value;
+  const cp = document.getElementById("cp").value;
+  const ville = document.getElementById("ville").value;
 
   let errorList = [];
 
   if (!name) {
     errorList.push("Nom");
   }
-  if (!price) {
-    errorList.push("Prix");
+  if (!adresse) {
+    errorList.push("Adresse");
   }
-  if (!model) {
-    errorList.push("Modèle");
+  if (!cp) {
+    errorList.push("Code postal");
   }
-  if (!description) {
-    errorList.push("Description");
+  if (!ville) {
+    errorList.push("Ville");
   }
 
   if (errorList.length > 0) {
@@ -62,9 +62,9 @@ form.addEventListener("submit", (event) => {
     return;
   }
   
-  const data = { name, price, model, description };
+  const data = { name, adresse, cp, ville };
   const token = sessionStorage.getItem('token');
-  fetch("http://localhost/p7/public/api/product", {
+  fetch("http://localhost/p7/public/api/client", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

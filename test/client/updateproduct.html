@@ -47,11 +47,11 @@
         return response.json();
       })
       .then(data => {
-        products = data;
-        if (!Array.isArray(data)) {
+        products = data.items;
+        if (!Array.isArray(products)) {
           message.innerHTML = "Error: la réponse du serveur n'est pas un tableau";
         } else {
-          data.forEach(product => {
+          products.forEach(product => {
             const option = document.createElement("option");
             option.value = product.id;
             option.innerHTML = product.name;

@@ -22,25 +22,31 @@
   </form>
   <div id="message"></div>
   <script>
-async function register() {
-  const nickname = document.querySelector("#nickname").value;  
-  const email = document.querySelector("#email").value;
-  const password = document.querySelector("#password").value;
-    const response = await fetch("http://localhost/p7/public/api/user/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      nickname,
-      email,
-      password
-    })
-  });
-  const data = await response.json();
-  const messageDiv = document.querySelector("#message");
-  messageDiv.textContent = data.message;
-}
-  </script>
+    async function register() {
+      const nickname = document.querySelector("#nickname").value;
+      const email = document.querySelector("#email").value;
+      const password = document.querySelector("#password").value;
+      const response = await fetch("http://localhost/p7/public/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nickname,
+          email,
+          password
+        })
+      });
+      const data = await response.json();
+      const messageDiv = document.querySelector("#message");
+      messageDiv.textContent = data.message;
+      if (response.ok) {
+        // Efface les champs de formulaire après une inscription réussie
+        document.querySelector("#nickname").value = "";
+        document.querySelector("#email").value = "";
+        document.querySelector("#password").value = "";
+      }
+    }
+   </script>
 </body>
 </html>
