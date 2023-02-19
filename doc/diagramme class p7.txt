@@ -1,0 +1,23 @@
+client:
+id: int: auto incrément
+name: string: 250
+adresse: string: 250
+cp: int: 10
+
+product:
+id: int: autoincrément
+name: string: 250
+price: int: 20
+model: string: 30
+
+user:
+id: int: autoincrément
+email: string: 250
+roles: json: 250
+password: string: 500
+nickname: string: 250
+createdAt: datetimeImutable
+
+relation:
+--Un utilisateur est associé à un et un seul client.
+--Un client peut être associé à plusieurs utilisateurs.
