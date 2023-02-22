@@ -87,7 +87,7 @@ class ClientController extends AbstractController
         }
         $em->persist($updatedClients);
         $em->flush();
-        return $this->json(["message" => "Utilisateur mis à jour avec succès."]);
+        return $this->json(["message" => "Client mis à jour avec succès."]);
     }
 
     /**

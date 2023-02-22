@@ -55,7 +55,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getUsers"])]
     private ?Clients $clients = null;
 
     public function getId(): ?int

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ORM\Entity(repositoryClass: ClientsRepository::class)]
 class Clients
 {
@@ -30,7 +31,7 @@ class Clients
 
     #[ORM\OneToMany(mappedBy: 'clients', targetEntity: User::class)]
     private Collection $users;
-
+    
     #[ORM\Column(length: 255)]
     #[Groups(["getClients"])]
     private ?string $ville = null;

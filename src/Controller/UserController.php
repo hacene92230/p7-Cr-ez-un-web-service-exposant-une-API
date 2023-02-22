@@ -80,7 +80,7 @@ class UserController extends AbstractController
         $pagination = $paginator->paginate(
             $users,
             $request->query->getInt('page', 1),
-            1
+            13
         );
         $data = [
             'items' => $pagination->getItems(),
@@ -88,7 +88,7 @@ class UserController extends AbstractController
             'page' => $pagination->getCurrentPageNumber(),
             'limit' => $pagination->getItemNumberPerPage(),
         ];
-        $json = $serializer->serialize($data, 'json', ['groups' => "getUsers"]);
+        $json = $serializer->serialize($data, 'json', ['groups' => ["getUsers", "getClients"]]);
         return new JsonResponse($json, 200, [], true);
     }
 

@@ -3,39 +3,39 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Modifier un produit</title>
+  <title>Modifier un client</title>
 </head>
 
 <body>
-  <select id="productId">
-    <option value="">Sélectionner un produit</option>
+  <select id="clientId">
+    <option value="">Sélectionner un client</option>
   </select>
   <br><br>
   <form id="form">
     <label>Nom :</label>
     <input type="text" id="name">
     <br><br>
-    <label>Prix :</label>
-    <input type="text" id="price">
+    <label>Adresse :</label>
+    <input type="text" id="adresse">
     <br><br>
-    <label>Modèle :</label>
-    <input type="text" id="model">
+    <label>code postal :</label>
+    <input type="text" id="cp">
     <br><br>
-    <label>Description :</label>
-    <input type="text" id="description">
+    <label>Ville :</label>
+    <input type="text" id="ville">
     <br><br>
     <button type="submit">Envoyer</button>
   </form>
 
   <div id="message"></div>
   <script>
-    const select = document.getElementById("productId");
+    const select = document.getElementById("clientId");
     const form = document.getElementById("form");
     const message = document.getElementById("message");
     const token = sessionStorage.getItem("token");
-    let products;
+    let clients;
   
-    fetch("http://localhost/p7/public/api/product/", {
+    fetch("http://localhost/p7/public/api/client/", {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -47,48 +47,48 @@
         return response.json();
       })
       .then(data => {
-        products = data.items;
-        if (!Array.isArray(products)) {
+        clients = data.items;
+        if (!Array.isArray(clients)) {
           message.innerHTML = "Error: la réponse du serveur n'est pas un tableau";
         } else {
-          products.forEach(product => {
+          clients.forEach(client => {
             const option = document.createElement("option");
-            option.value = product.id;
-            option.innerHTML = product.name;
+            option.value = client.id;
+            option.innerHTML = client.name;
             select.appendChild(option);
           });
         }
       })
       .catch(error => message.innerHTML = `Error: ${error}`);
   
-    let selectedProduct;
+    let selectedClient;
     select.addEventListener("change", () => {
-      selectedProduct = products.find(product => product.id === Number(select.value));
+      selectedClient = clients.find(client => client.id === Number(select.value));
   
-      if (selectedProduct) {
-        document.getElementById("name").value = selectedProduct.name;
-        document.getElementById("price").value = selectedProduct.price;
-        document.getElementById("model").value = selectedProduct.model;
-        document.getElementById("description").value = selectedProduct.description;
+      if (selectedClient) {
+        document.getElementById("name").value = selectedClient.name;
+        document.getElementById("adresse").value = selectedClient.adresse;
+        document.getElementById("cp").value = selectedClient.cp;
+        document.getElementById("ville").value = selectedClient.ville;
       }
     });
   
     form.addEventListener("submit", event => {
   event.preventDefault();
 
-  const productId = selectedProduct.id;
-  if (!productId) {
-    return message.innerHTML = "Error: Veuillez sélectionner un produit à modifier";
+  const clientId = selectedClient.id;
+  if (!clientId) {
+    return message.innerHTML = "Error: Veuillez sélectionner un client à modifier";
   }
 
   const data = {
     name: document.getElementById("name").value,
-    price: document.getElementById("price").value,
-    model: document.getElementById("model").value,
-    description: document.getElementById("description").value
+    adresse: document.getElementById("adresse").value,
+    cp: document.getElementById("cp").value,
+    ville: document.getElementById("ville").value
   };
 
-  fetch(`http://localhost/p7/public/api/product/${productId}`, {
+  fetch(`http://localhost/p7/public/api/client/${clientId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -106,7 +106,7 @@
       if (data.message) {
         message.innerHTML = `message: ${data.message}`;
       } else {
-        message.innerHTML = "Success: Le produit a été mis à jour avec succès";
+        message.innerHTML = "Success: Le client a été mis à jour avec succès";
       }
     })
     .catch(error => message.innerHTML = `Error: ${error}`);
