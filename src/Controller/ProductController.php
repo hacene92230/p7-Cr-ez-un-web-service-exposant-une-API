@@ -23,44 +23,70 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class ProductController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * @Route("/", name="product_index", methods={"GET"})
      */
-    public function index(TagAwareCacheInterface $cachePool, PaginatorInterface $paginator, ManagerRegistry $doctrine, SerializerInterface $serializer, Request $request): JsonResponse
-    {
-        // Définit le nom de la clé de cache
-        $cacheKey = 'products_index_cache_key';
+    public function index(
+        TagAwareCacheInterface $cachePool,
+        PaginatorInterface $paginator,
+        SerializerInterface $serializer,
+        Request $request
+    ): JsonResponse {
+        $name = $request->query->get('name');
+        $orderBy = $request->query->get('orderBy', 'name');
+        $direction = $request->query->get('direction', 'asc');
 
-        // Vérifie si la réponse est déjà en cache
+        $cacheKey = 'products_index_' . md5(json_encode([$name, $orderBy, $direction]));
+
         if ($cachePool->hasItem($cacheKey)) {
             $json = $cachePool->getItem($cacheKey)->get();
             return new JsonResponse($json, 200, [], true);
         }
 
-        $products = $doctrine
-            ->getRepository(Product::class)
-            ->findAll();
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('p')
+            ->from(Product::class, 'p')
+            ->orderBy('p.' . $orderBy, $direction);
+
+        if ($name) {
+            $queryBuilder
+                ->andWhere('p.name LIKE :name')
+                ->setParameter('name', '%' . $name . '%');
+        }
+
         $pagination = $paginator->paginate(
-            $products,
+            $queryBuilder,
             $request->query->getInt('page', 1),
-            5
+            5 // nombre d'éléments par page
         );
+
+        $products = $pagination->getItems();
+
         $data = [
-            'items' => $pagination->getItems(),
+            'items' => $products,
             'total_items' => $pagination->getTotalItemCount(),
             'page' => $pagination->getCurrentPageNumber(),
             'limit' => $pagination->getItemNumberPerPage(),
         ];
-        $json = $serializer->serialize($data, 'json', ['groups' => 'getProducts']);
 
-        // Stocke la réponse en cache
+        $json = $serializer->serialize($data, 'json', ['groups' => 'getProducts']);
+        $response = new JsonResponse($json, 200, [], true);
+
         $cacheItem = $cachePool->getItem($cacheKey);
         $cacheItem->set($json);
         $cacheItem->tag(['products']);
         $cachePool->save($cacheItem);
 
-        return new JsonResponse($json, 200, [], true);
+        return $response;
     }
+
 
     #[Route('/{id}', name: 'detailProduct', methods: ['GET'])]
     public function getDetailProduct($id, SerializerInterface $serializer, ProductRepository $productRepository): JsonResponse

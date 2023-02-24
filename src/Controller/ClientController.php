@@ -41,23 +41,28 @@ class ClientController extends AbstractController
     /**
      * @Route("/", name="client_index", methods={"GET"})
      */
-    public function index(PaginatorInterface $paginator, ManagerRegistry $doctrine, SerializerInterface $serializer, Request $request): JsonResponse
+    public function index(PaginatorInterface $paginator, Request $request, SerializerInterface $serializer): JsonResponse
     {
-        $clients = $doctrine
-            ->getRepository(Clients::class)
-            ->findAll();
+        $query = $this->getDoctrine()
+             ->getRepository(Client::class)
+            ->createQueryBuilder('c')
+            ->getQuery();
+
         $pagination = $paginator->paginate(
-            $clients,
+            $query,
             $request->query->getInt('page', 1),
             12
         );
+
         $data = [
             'items' => $pagination->getItems(),
             'total_items' => $pagination->getTotalItemCount(),
             'page' => $pagination->getCurrentPageNumber(),
             'limit' => $pagination->getItemNumberPerPage(),
         ];
-        $json = $serializer->serialize($data, 'json', ['groups' => "getClients"]);
+
+        $json = $serializer->serialize($data, 'json', ['groups' => 'getClients']);
+
         return new JsonResponse($json, 200, [], true);
     }
 

@@ -74,21 +74,31 @@ class UserController extends AbstractController
      */
     public function index(PaginatorInterface $paginator, ManagerRegistry $doctrine, SerializerInterface $serializer, Request $request): JsonResponse
     {
-        $users = $doctrine
-            ->getRepository(User::class)
-            ->findAll();
+        $queryBuilder = $doctrine->getRepository(User::class)->createQueryBuilder('u');
+
+        // On ajoute des filtres si nécessaire
+        $name = $request->query->get('name');
+        if ($name) {
+            $queryBuilder
+                ->where('u.name LIKE :name')
+                ->setParameter('name', '%' . $name . '%');
+        }
+
         $pagination = $paginator->paginate(
-            $users,
+            $queryBuilder->getQuery(),
             $request->query->getInt('page', 1),
             13
         );
+
         $data = [
             'items' => $pagination->getItems(),
             'total_items' => $pagination->getTotalItemCount(),
             'page' => $pagination->getCurrentPageNumber(),
             'limit' => $pagination->getItemNumberPerPage(),
         ];
+
         $json = $serializer->serialize($data, 'json', ['groups' => ["getUsers", "getClients"]]);
+
         return new JsonResponse($json, 200, [], true);
     }
 
