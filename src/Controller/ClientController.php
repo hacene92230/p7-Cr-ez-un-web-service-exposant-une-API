@@ -44,7 +44,7 @@ class ClientController extends AbstractController
     public function index(PaginatorInterface $paginator, Request $request, SerializerInterface $serializer): JsonResponse
     {
         $query = $this->getDoctrine()
-             ->getRepository(Client::class)
+            ->getRepository(Client::class)
             ->createQueryBuilder('c')
             ->getQuery();
 
@@ -115,5 +115,36 @@ class ClientController extends AbstractController
         $entityManager->remove($client);
         $entityManager->flush();
         return new JsonResponse(["message" => "Suppression effectuée avec succès."], Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/{id}/users', name: 'usersClients', methods: ['GET'])]
+    public function getUsersClients($id, SerializerInterface $serializer, ClientsRepository $clientRepository, PaginatorInterface $paginator, Request $request): JsonResponse
+    {
+        $client = $clientRepository->find($id);
+        if (!$client) {
+            return new JsonResponse(['message' => 'Client non trouvé.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $utilisateurs = $client->getUsers();
+        if (!$utilisateurs) {
+            return new JsonResponse(['message' => 'Aucun utilisateur trouvé pour ce client.'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Configuration de la pagination
+        $pagination = $paginator->paginate(
+            $utilisateurs,
+            $request->query->getInt('page', 1), // numéro de la page
+            10 // nombre d'éléments par page
+        );
+
+        $data = [
+            'items' => $pagination->getItems(),
+            'total_items' => $pagination->getTotalItemCount(),
+            'current_page' => $pagination->getCurrentPageNumber(),
+            'items_per_page' => $pagination->getItemNumberPerPage(),
+            'total_pages' => $pagination->getPageCount()
+        ];
+        $jsonUtilisateurs = $serializer->serialize($data, 'json', ['groups' => ['getUsers']]);
+        return new JsonResponse($jsonUtilisateurs, Response::HTTP_OK, [], true);
     }
 }

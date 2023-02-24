@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des clients</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    h2 {
+      font-size: 1.2em;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+    }
+
+    ul {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-left: 1em;
+    }
+
+    li {
+      margin-bottom: 0.5em;
+    }
+
+    .client-link {
+      text-decoration: none;
+      color: #0066cc;
+      cursor: pointer;
+    }
+
+    .client-link.active {
+      font-weight: bold;
+    }
+
+    .error {
+      color: #cc0000;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Liste des clients</h1>
+  <div id="client"></div>
+  <div id="client-details"></div>
+  <script>
+    const clientDiv = document.getElementById("client");
+const clientDetailsDiv = document.getElementById("client-details");
+const token = sessionStorage.getItem('token');
+const fetchClients = (page = 1) => {
+    fetch(`http://localhost/p7/public/api/client?page=${page}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        let clientHtml = "";
+        for (const client of data.items) {
+            clientHtml += `
+            <div>
+                <h2>${client.name}</h2>
+                <ul>`;
+            fetch(`http://localhost/p7/public/api/client/${client.id}/users`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then((response) => response.json())
+            .then((utilisateursData) => {
+                for (const user of utilisateursData.items) {
+                    clientHtml += `
+                        <li>${user.name}</li>
+                        `;
+                }
+                clientHtml += `
+                </ul>
+            </div>
+            `;
+                clientDiv.innerHTML = clientHtml;
+            })
+            .catch((error) => {
+                clientHtml += `
+                <p class="error">Error: ${error}</p>
+                </ul>
+            </div>
+            `;
+                clientDiv.innerHTML = clientHtml;
+            });
+        }
+        const paginationHtml = `
+        <div>
+            ${data.current_page} / ${data.total_pages} pages
+            <button ${data.current_page === 1 ? 'disabled' : ''} onclick="fetchClients(${data.current_page - 1})">Précédent</button>
+            <button ${data.current_page === data.total_pages ? 'disabled' : ''} onclick="fetchClients(${data.current_page + 1})">Suivant</button>
+        </div>
+        `;
+        clientDetailsDiv.innerHTML = paginationHtml;
+    })
+    .catch((error) => {
+        if (token === null) {
+            clientDiv.innerHTML = "Token non valide. Veuillez vérifier les informations de connexion.";
+            return;
+        }
+        clientDiv.innerHTML = "Error: " + error;
+    });
+};
+
+fetchClients();
+
+    
+  </script>
+</body>
+
+</html>
