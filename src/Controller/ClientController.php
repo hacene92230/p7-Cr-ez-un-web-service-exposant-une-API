@@ -87,7 +87,7 @@ class ClientController extends AbstractController
         }
         $em->persist($updatedClients);
         $em->flush();
-        return $this->json(["message" => "Client mis à jour avec succès."]);
+        return $this->json(["message" => "Mise à jour effectuée avec succès."], Response::HTTP_OK);
     }
 
     /**
@@ -109,6 +109,6 @@ class ClientController extends AbstractController
         }
         $entityManager->remove($client);
         $entityManager->flush();
-        return $this->json('Deleted a client successfully with id ' . $id);
+        return new JsonResponse(["message" => "Suppression effectuée avec succès."], Response::HTTP_NO_CONTENT);
     }
 }

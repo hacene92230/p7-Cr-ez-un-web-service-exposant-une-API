@@ -3,6 +3,7 @@ id: int: auto incrément
 name: string: 250
 adresse: string: 250
 cp: int: 10
+ville string 250
 
 product:
 id: int: autoincrément

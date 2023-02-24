@@ -66,7 +66,7 @@ class UserController extends AbstractController
         // Persistence et enregistrement de l'utilisateur
         $em->persist($user);
         $em->flush();
-        return $this->json(['message' => 'Registered Successfully']);
+        return $this->json(['message' => 'Registered Successfully'], 201);
     }
 
     /**
@@ -115,9 +115,8 @@ class UserController extends AbstractController
         }
         $entityManager->remove($user);
         $entityManager->flush();
-        return new JsonResponse(["message" => "suppression correctement effectuer"]);
+        return new JsonResponse(["message" => "Suppression effectuée avec succès."], Response::HTTP_NO_CONTENT);
     }
-
 
     /**
      * @Route("/{id}", name="user_edit", methods={"PUT"})
@@ -134,6 +133,6 @@ class UserController extends AbstractController
         }
         $em->persist($updatedUser);
         $em->flush();
-        return $this->json(["message" => "Utilisateur mis à jour avec succès."]);
+        return $this->json(["message" => "Mise à jour effectuée avec succès."], Response::HTTP_OK);
     }
 }

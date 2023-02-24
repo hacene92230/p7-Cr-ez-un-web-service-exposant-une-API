@@ -68,7 +68,7 @@ class ProductController extends AbstractController
         $product = $productRepository->findOneById($id);
         if ($product) {
             $jsonProduct = $serializer->serialize($product, 'json', ['groups' => 'getProducts']);
-            return new JsonResponse($jsonProduct, Response::HTTP_OK, [], true);
+            return new JsonResponse($jsonProduct, 200, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
     }
@@ -105,7 +105,7 @@ class ProductController extends AbstractController
         }
         $em->persist($updatedProduct);
         $em->flush();
-        return $this->json(["message" => "Produit mis à jour avec succès."]);
+        return $this->json(["message" => "Produit mis à jour avec succès."], 200);
     }
 
     /**
@@ -123,6 +123,6 @@ class ProductController extends AbstractController
         }
         $entityManager->remove($product);
         $entityManager->flush();
-        return $this->json('Deleted a product successfully with id ' . $id);
+        return $this->json('Deleted a product successfully with id ' . $id, 204);
     }
 }
